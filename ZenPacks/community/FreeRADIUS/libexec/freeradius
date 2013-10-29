@@ -1,0 +1,6 @@
+#!/bin/bash
+# Andrew Crouthamel
+# 10/28/2013
+# ${here/ZenPackManager/packs/ZenPacks.community.FreeRADIUS/path}/libexec/freeradius
+
+i=1; while [ $i -le 2 ]; do while IFS= read -r; do [[ $REPLY = [[:space:]]* ]] && _temp=${REPLY#*-*-*} name=${_temp%[[:space:]]=*} name=${name//-} values+="$(tr '[A-Z]' '[a-z]' <<< "$name")=${_temp#*=[[:space:]]} "; done < <(radclient localhost:18120 status adminsecret <<< "Message-Authenticator = 0x00, FreeRADIUS-Statistics-Type = $i"); let ++i; done; printf "|$values";
