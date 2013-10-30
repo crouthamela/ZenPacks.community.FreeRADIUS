@@ -8,3 +8,5 @@ You will want to edit the data source to reflect your environment. Change "radcl
 A new Monitoring Template named "FreeRADIUS" will be created.
 
 Requires SSH credentials setup to run the commands.
+
+See screenshot for example.
