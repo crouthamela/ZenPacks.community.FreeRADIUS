@@ -20,13 +20,13 @@ True
 3
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-${here/ZenPackManager/packs/ZenPacks.community.FreeRADIUS/path}/libexec/freeradius
+/bin/bash -c 'i=1; while [[ $$i -le 2 ]]; do while IFS= read -r; do [[ $$REPLY = [[:space:]]* ]] &amp;&amp; _temp=$${REPLY#*-*-*} name=$${_temp%[[:space:]]=*} name=$${name//-} values+="$$(tr '[A-Z]' '[a-z]' &lt;&lt;&lt; "$$name")=$${_temp#*=[[:space:]]} "; done &lt; &lt;(radclient localhost:18120 status adminsecret &lt;&lt;&lt; "Message-Authenticator = 0x00, FreeRADIUS-Statistics-Type = $$i"); let ++i; done; printf "OK|$$values";'
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
 </property>
 <property type="boolean" id="usessh" mode="w" >
-False
+True
 </property>
 <property type="string" id="parser" mode="w" >
 Auto
@@ -172,12 +172,208 @@ True
 </object>
 </tomanycont>
 <tomanycont id='graphDefs'>
+<object id='FreeRADIUS Access Rates' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
+<property type="int" id="height" mode="w" >
+100
+</property>
+<property type="int" id="width" mode="w" >
+500
+</property>
+<property type="string" id="units" mode="w" >
+per 5 min
+</property>
+<property type="boolean" id="log" mode="w" >
+False
+</property>
+<property type="boolean" id="base" mode="w" >
+False
+</property>
+<property type="int" id="miny" mode="w" >
+0
+</property>
+<property type="int" id="maxy" mode="w" >
+-1
+</property>
+<property type="text" id="custom" mode="w" >
+CDEF:CurrentIveNCHits1=Total_Access_Requests-raw
+CDEF:LastIveNCHits1=PREV(CurrentIveNCHits1)
+CDEF:PrevIveNCHits1=PREV(LastIveNCHits1)
+CDEF:DiffIveNCHits1=CurrentIveNCHits1,PrevIveNCHits1,-,0.001,+
+LINE2:DiffIveNCHits1#3399FF:Access Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits1:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits1:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits1:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits2=Total_Access_Accepts-raw
+CDEF:LastIveNCHits2=PREV(CurrentIveNCHits2)
+CDEF:PrevIveNCHits2=PREV(LastIveNCHits2)
+CDEF:DiffIveNCHits2=CurrentIveNCHits2,PrevIveNCHits2,-,0.001,+
+LINE2:DiffIveNCHits2#33CC33:Access Accepts
+COMMENT:cur\:
+GPRINT:DiffIveNCHits2:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits2:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits2:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits3=Total_Access_Rejects-raw
+CDEF:LastIveNCHits3=PREV(CurrentIveNCHits3)
+CDEF:PrevIveNCHits3=PREV(LastIveNCHits3)
+CDEF:DiffIveNCHits3=CurrentIveNCHits3,PrevIveNCHits3,-,0.001,+
+LINE2:DiffIveNCHits3#CC0000:Access Rejects
+COMMENT:cur\:
+GPRINT:DiffIveNCHits3:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits3:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits3:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits4=Total_Access_Challenges-raw
+CDEF:LastIveNCHits4=PREV(CurrentIveNCHits4)
+CDEF:PrevIveNCHits4=PREV(LastIveNCHits4)
+CDEF:DiffIveNCHits4=CurrentIveNCHits4,PrevIveNCHits4,-,0.001,+
+LINE2:DiffIveNCHits4#FFCC00:Access Challenges
+COMMENT:cur\:
+GPRINT:DiffIveNCHits4:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits4:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits4:MAX:%5.2lf%s\j
+</property>
+<property type="boolean" id="hasSummary" mode="w" >
+True
+</property>
+<property type="long" id="sequence" mode="w" >
+3
+</property>
+<tomanycont id='graphPoints'>
+<object id='Total Access Accepts' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+1
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_accessaccepts
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Access Challenges' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+2
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_accesschallenges
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Access Rejects' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+3
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_accessrejects
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Access Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_accessrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+</tomanycont>
+</object>
 <object id='FreeRADIUS Access Totals' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
 <property type="int" id="height" mode="w" >
 100
 </property>
 <property type="int" id="width" mode="w" >
 500
+</property>
+<property type="string" id="units" mode="w" >
+Total
 </property>
 <property type="boolean" id="log" mode="w" >
 False
@@ -209,13 +405,13 @@ True
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -241,13 +437,13 @@ FFCC00
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -273,13 +469,13 @@ CC0000
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -302,16 +498,16 @@ AVERAGE
 3399FF
 </property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
-AREA
+LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -328,12 +524,328 @@ AVERAGE
 </object>
 </tomanycont>
 </object>
+<object id='FreeRADIUS Accounting Rates' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
+<property type="int" id="height" mode="w" >
+100
+</property>
+<property type="int" id="width" mode="w" >
+500
+</property>
+<property type="string" id="units" mode="w" >
+per 5 min
+</property>
+<property type="boolean" id="log" mode="w" >
+False
+</property>
+<property type="boolean" id="base" mode="w" >
+False
+</property>
+<property type="int" id="miny" mode="w" >
+0
+</property>
+<property type="int" id="maxy" mode="w" >
+-1
+</property>
+<property type="text" id="custom" mode="w" >
+CDEF:CurrentIveNCHits1=Total_Accounting_Requests-raw
+CDEF:LastIveNCHits1=PREV(CurrentIveNCHits1)
+CDEF:PrevIveNCHits1=PREV(LastIveNCHits1)
+CDEF:DiffIveNCHits1=CurrentIveNCHits1,PrevIveNCHits1,-,0.001,+
+LINE2:DiffIveNCHits1#3399FF:Accounting Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits1:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits1:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits1:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits2=Total_Accounting_Responses-raw
+CDEF:LastIveNCHits2=PREV(CurrentIveNCHits2)
+CDEF:PrevIveNCHits2=PREV(LastIveNCHits2)
+CDEF:DiffIveNCHits2=CurrentIveNCHits2,PrevIveNCHits2,-,0.001,+
+LINE2:DiffIveNCHits2#00CC00:Accounting Responses
+COMMENT:cur\:
+GPRINT:DiffIveNCHits2:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits2:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits2:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits3=Total_Accounting_Duplicate_Requests-raw
+CDEF:LastIveNCHits3=PREV(CurrentIveNCHits3)
+CDEF:PrevIveNCHits3=PREV(LastIveNCHits3)
+CDEF:DiffIveNCHits3=CurrentIveNCHits3,PrevIveNCHits3,-,0.001,+
+LINE2:DiffIveNCHits3#FFCC00:Accounting Duplicate Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits3:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits3:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits3:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits4=Total_Accounting_Malformed_Requests-raw
+CDEF:LastIveNCHits4=PREV(CurrentIveNCHits4)
+CDEF:PrevIveNCHits4=PREV(LastIveNCHits4)
+CDEF:DiffIveNCHits4=CurrentIveNCHits4,PrevIveNCHits4,-,0.001,+
+LINE2:DiffIveNCHits4#CC0066:Accounting Malformed Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits4:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits4:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits4:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits5=Total_Accounting_Invalid_Requests-raw
+CDEF:LastIveNCHits5=PREV(CurrentIveNCHits5)
+CDEF:PrevIveNCHits5=PREV(LastIveNCHits5)
+CDEF:DiffIveNCHits5=CurrentIveNCHits5,PrevIveNCHits5,-,0.001,+
+LINE2:DiffIveNCHits5#FF9900:Accounting Invalid Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits5:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits5:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits5:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits6=Total_Accounting_Dropped_Requests-raw
+CDEF:LastIveNCHits6=PREV(CurrentIveNCHits6)
+CDEF:PrevIveNCHits6=PREV(LastIveNCHits6)
+CDEF:DiffIveNCHits6=CurrentIveNCHits6,PrevIveNCHits6,-,0.001,+
+LINE2:DiffIveNCHits6#CC0000:Accounting Dropped Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits6:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits6:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits6:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits7=Total_Accounting_Unknown_Types-raw
+CDEF:LastIveNCHits7=PREV(CurrentIveNCHits7)
+CDEF:PrevIveNCHits7=PREV(LastIveNCHits7)
+CDEF:DiffIveNCHits7=CurrentIveNCHits7,PrevIveNCHits7,-,0.001,+
+LINE2:DiffIveNCHits7#CC00FF:Accounting Unknown Types
+COMMENT:cur\:
+GPRINT:DiffIveNCHits7:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits7:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits7:MAX:%5.2lf%s\j
+</property>
+<property type="boolean" id="hasSummary" mode="w" >
+True
+</property>
+<property type="long" id="sequence" mode="w" >
+5
+</property>
+<tomanycont id='graphPoints'>
+<object id='Total Accounting Dropped Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+5
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_acctdroppedrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Accounting Duplicate Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+2
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_acctduplicaterequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Accounting Invalid Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+4
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_acctinvalidrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Accounting Malformed Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+3
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_acctmalformedrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Accounting Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_accountingrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Accounting Responses' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+1
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_accountingresponses
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Accounting Unknown Types' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+6
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_acctunknowntypes
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+</tomanycont>
+</object>
 <object id='FreeRADIUS Accounting Totals' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
 <property type="int" id="height" mode="w" >
 100
 </property>
 <property type="int" id="width" mode="w" >
 500
+</property>
+<property type="string" id="units" mode="w" >
+Total
 </property>
 <property type="boolean" id="log" mode="w" >
 False
@@ -365,7 +877,7 @@ CC0000
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
@@ -397,13 +909,13 @@ FFCC00
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -429,13 +941,13 @@ FF9900
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -461,13 +973,13 @@ CC0066
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -490,16 +1002,16 @@ AVERAGE
 3399FF
 </property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
-AREA
+LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -525,13 +1037,13 @@ AVERAGE
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -557,7 +1069,7 @@ CC00FF
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
@@ -580,12 +1092,288 @@ AVERAGE
 </object>
 </tomanycont>
 </object>
-<object id='FreeRADIUS Authorization Totals' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
+<object id='FreeRADIUS Authentication Rates' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
 <property type="int" id="height" mode="w" >
 100
 </property>
 <property type="int" id="width" mode="w" >
 500
+</property>
+<property type="string" id="units" mode="w" >
+per 5 min
+</property>
+<property type="boolean" id="log" mode="w" >
+False
+</property>
+<property type="boolean" id="base" mode="w" >
+False
+</property>
+<property type="int" id="miny" mode="w" >
+0
+</property>
+<property type="int" id="maxy" mode="w" >
+-1
+</property>
+<property type="text" id="custom" mode="w" >
+CDEF:CurrentIveNCHits1=Total_Authentication_Responses-raw
+CDEF:LastIveNCHits1=PREV(CurrentIveNCHits1)
+CDEF:PrevIveNCHits1=PREV(LastIveNCHits1)
+CDEF:DiffIveNCHits1=CurrentIveNCHits1,PrevIveNCHits1,-,0.001,+
+LINE2:DiffIveNCHits1#3399FF:Authentication Responses
+COMMENT:cur\:
+GPRINT:DiffIveNCHits1:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits1:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits1:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits2=Total_Authentication_Duplicate_Requests-raw
+CDEF:LastIveNCHits2=PREV(CurrentIveNCHits2)
+CDEF:PrevIveNCHits2=PREV(LastIveNCHits2)
+CDEF:DiffIveNCHits2=CurrentIveNCHits2,PrevIveNCHits2,-,0.001,+
+LINE2:DiffIveNCHits2#FFCC00:Authentication Duplicate Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits2:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits2:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits2:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits3=Total_Authentication_Malformed_Requests-raw
+CDEF:LastIveNCHits3=PREV(CurrentIveNCHits3)
+CDEF:PrevIveNCHits3=PREV(LastIveNCHits3)
+CDEF:DiffIveNCHits3=CurrentIveNCHits3,PrevIveNCHits3,-,0.001,+
+LINE2:DiffIveNCHits3#CC0066:Authentication Malformed Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits3:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits3:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits3:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits4=Total_Authentication_Invalid_Requests-raw
+CDEF:LastIveNCHits4=PREV(CurrentIveNCHits4)
+CDEF:PrevIveNCHits4=PREV(LastIveNCHits4)
+CDEF:DiffIveNCHits4=CurrentIveNCHits4,PrevIveNCHits4,-,0.001,+
+LINE2:DiffIveNCHits4#FF9900:Authentication Invalid Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits4:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits4:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits4:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits5=Total_Authentication_Dropped_Requests-raw
+CDEF:LastIveNCHits5=PREV(CurrentIveNCHits5)
+CDEF:PrevIveNCHits5=PREV(LastIveNCHits5)
+CDEF:DiffIveNCHits5=CurrentIveNCHits5,PrevIveNCHits5,-,0.001,+
+LINE2:DiffIveNCHits5#CC0000:Authentication Dropped Requests
+COMMENT:cur\:
+GPRINT:DiffIveNCHits5:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits5:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits5:MAX:%5.2lf%s\j
+CDEF:CurrentIveNCHits6=Total_Authentication_Unknown_Types-raw
+CDEF:LastIveNCHits6=PREV(CurrentIveNCHits6)
+CDEF:PrevIveNCHits6=PREV(LastIveNCHits6)
+CDEF:DiffIveNCHits6=CurrentIveNCHits6,PrevIveNCHits6,-,0.001,+
+LINE2:DiffIveNCHits6#CC00FF:Authentication Unknown Types
+COMMENT:cur\:
+GPRINT:DiffIveNCHits6:LAST:%5.2lf%s
+COMMENT:avg\:
+GPRINT:DiffIveNCHits6:AVERAGE:%5.2lf%s
+COMMENT:max\:
+GPRINT:DiffIveNCHits6:MAX:%5.2lf%s\j
+</property>
+<property type="boolean" id="hasSummary" mode="w" >
+True
+</property>
+<property type="long" id="sequence" mode="w" >
+4
+</property>
+<tomanycont id='graphPoints'>
+<object id='Total Authentication Dropped Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+3
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_authdroppedrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Authentication Duplicate Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_authduplicaterequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Authentication Invalid Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+2
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_authinvalidrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Authentication Malformed Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+1
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_authmalformedrequests
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Authentication Responses' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+5
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_authresponses
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Total Authentication Unknown Types' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+4
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+DONTDRAW
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%5.2lf%s
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+freeradius_authunknowntypes
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+</tomanycont>
+</object>
+<object id='FreeRADIUS Authentication Totals' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
+<property type="int" id="height" mode="w" >
+100
+</property>
+<property type="int" id="width" mode="w" >
+500
+</property>
+<property type="string" id="units" mode="w" >
+Total
 </property>
 <property type="boolean" id="log" mode="w" >
 False
@@ -606,7 +1394,7 @@ True
 1
 </property>
 <tomanycont id='graphPoints'>
-<object id='Total Authorization Dropped Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='Total Authentication Dropped Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 4
 </property>
@@ -617,13 +1405,13 @@ CC0000
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -638,7 +1426,7 @@ freeradius_authdroppedrequests
 AVERAGE
 </property>
 </object>
-<object id='Total Authorization Duplicate Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='Total Authentication Duplicate Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 1
 </property>
@@ -649,13 +1437,13 @@ FFCC00
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -670,7 +1458,7 @@ freeradius_authduplicaterequests
 AVERAGE
 </property>
 </object>
-<object id='Total Authorization Invalid Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='Total Authentication Invalid Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 3
 </property>
@@ -681,13 +1469,13 @@ FF9900
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -702,7 +1490,7 @@ freeradius_authinvalidrequests
 AVERAGE
 </property>
 </object>
-<object id='Total Authorization Malformed Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='Total Authentication Malformed Requests' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 2
 </property>
@@ -713,13 +1501,13 @@ CC0066
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -734,7 +1522,7 @@ freeradius_authmalformedrequests
 AVERAGE
 </property>
 </object>
-<object id='Total Authorization Responses' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='Total Authentication Responses' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 0
 </property>
@@ -742,16 +1530,16 @@ AVERAGE
 3399FF
 </property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
-AREA
+LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
@@ -766,7 +1554,7 @@ freeradius_authresponses
 AVERAGE
 </property>
 </object>
-<object id='Total Authorization Unknown Types' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='Total Authentication Unknown Types' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 5
 </property>
@@ -777,13 +1565,13 @@ CC00FF
 LINE
 </property>
 <property type="long" id="lineWidth" mode="w" >
-1
+2
 </property>
 <property type="boolean" id="stacked" mode="w" >
 False
 </property>
 <property type="string" id="format" mode="w" >
-%5.0lf%s
+%5.2lf%s
 </property>
 <property type="string" id="legend" mode="w" >
 ${graphPoint/id}
